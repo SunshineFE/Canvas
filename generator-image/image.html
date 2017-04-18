@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="content-type" content="text/html,charset=utf-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/normalize/6.0.0/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./common.css">
+    <style>
+        canvas{
+            display: block;
+        }
+
+        .popup-modal-container,.popup-mask-container{
+            position:fixed;
+            top:0;
+            right:0;
+            bottom:0;
+            left:0;
+
+
+            padding:1rem;
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+
+            -webkit-box-pack: center;
+            -moz-box-pack:center;
+            -ms-flexbox-pack:center;
+            -webit-justify-content:center;
+            justify-content: center;
+
+            -webkit-box-align: center;
+            -moz-box-align:center;
+            -ms-flexbox-align:center;
+            -webkit-align-items:center;
+            align-items: center;
+
+        }
+
+        .hide{
+            display: none;
+        }
+
+        .popup-modal-wrapper{
+            z-index:900;
+            position:relative;
+            background: rgba(255,255,255,.9);
+            min-height: 300px;
+            min-width:400px;
+            border-radius:8px;
+            box-shadow: 0 10px 15px 3px rgba(0,0,0,.3);
+
+        }
+
+        .popup-confirm-header{
+            text-align:center;
+            font-weight: bold;
+            padding:1rem;
+        }
+
+        .popup-mask-container{
+            width:100%;
+            height:100%;
+            background-image:-webkit-linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.5))
+        }
+
+        .popup-modal-content{
+            padding:.625rem;
+        }
+
+        .popup-modal-content dl dt{
+            min-width:4rem;
+        }
+
+        .popup-modal-content dd input{
+            border-radius: 3px;
+            outline: none;
+
+        }
+
+        button{
+            border: 1px solid transparent;
+            background-color:transparent;
+            cursor:pointer;
+            -webkit-appearance: button;
+            font-weight: 400;
+            text-align: center;
+            vertical-align: middle;
+            user-select: none;
+            transform: translateZ(0);
+            transition: color .2s linear,background-color .2s linear,border .2s linear;
+            border-radius:4px;
+            outline: 0;
+            font-size:12px;
+        }
+
+        input,select{
+            border:1px solid #d7dde4;
+            color: #657180;
+            border-radius:4px;
+            background-color: #fff;
+            width:100%;
+            font-size: 12px;
+            transition: border .2s ease-in-out,background .2s ease-in-out,box-shadow .2s ease-in-out;
+            cursor: text;
+            padding:3px 5px;
+        }
+
+        input:hover{
+            border-color:#57c5f7;
+        }
+
+        select{
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0); /* 点击去除高亮的颜色*/
+        }
+        
+        .popup-modal-content dl dt,dl dd {
+            display: inline-block;
+            padding:.3125rem .625rem;
+            margin:0;
+        }
+
+        .btn{
+            line-height: normal;
+            padding:.625rem 1rem;
+            border:1px solid #2db7f5;
+            background:#2db7f5;
+            color:#fff;
+        }
+
+        .btn:hover{
+            background-color: #57c5f7;
+            border-color: #57c5f7;
+        }
+
+        .btn:active{
+            background-color: #2baee9;
+            border-color: #2baee9;
+        }
+
+        .btn-center{
+            position:absolute;
+            left:50%;
+            transform: translateX(-50%);
+            bottom:2rem;
+        }
+
+    </style>
+</head>
+
+<body>
+    <header></header>
+    <div id="body">
+        <div id="content">
+            <canvas width="400" height="400">瀏覽器太久了，不支持canvas</canvas>
+            <button class="btn" id="save">保存图片</button>
+            <button class="btn" id="download">下载图片</button>
+        </div>
+        <div id="popup-view">
+            <div class="popup-mask-container hide"></div>
+            <div class="popup-modal-container hide">
+                <div class="popup-modal-wrapper">
+                    <header class="popup-confirm-header"><span>下載圖片</span></header>
+                    <div class="popup-modal-content">
+                        <dl>
+                            <dt for="file-name">文件名称</dt>
+                            <dd><input id="file-name" type="text"></input></dd>
+                        </dl>
+                        <dl>
+                            <dt for="image-type">图片类型</dt>
+                            <dd>
+                                <select id="image-type">
+                                    <option selected>png</option>
+                                    <option>jpeg</option>
+                                    <option>gif</option>
+                                </select>
+                            </dd>
+                        </dl>
+
+                        <button id="confirm-download" class="btn btn-center">确认下载</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    var mask,modal,modalWrapper;
+
+        document.addEventListener('DOMContentLoaded', function (e) {
+            var target = e.target || e.srcElement;
+
+            if (target.readyState === 'complete' || target.readyState === 'interactive') {
+                drawCanvas();
+                bindClickEvent();
+                mask = document.querySelector('.popup-mask-container');
+                modal = document.querySelector('.popup-modal-container');
+                modalWrapper = document.querySelector('.popup-modal-wrapper');
+            } else {
+                console.log(target.readyState)
+            }
+        })
+
+        function showMask(){
+            mask.classList.remove('hide')
+        }
+
+        function hideMask(){
+            mask.classList.add('hide')
+        }
+
+        function showModal(){
+            modal.classList.remove('hide')
+        }
+
+        function hideModal(){
+            modal.classList.add('hide')
+        }
+
+        function bindMaskHideEvent(){
+            mask.addEventListener('click',function(){
+                hideMask();
+                hideModal();
+            })
+
+            modal.addEventListener('click',function(e){
+                var target = e.target || e.srcElement;
+                
+                if(modalWrapper.contains(target) || modalWrapper == target){
+                    e.preventDefault();
+                    e.stopPropagation();
+                    confirmDownload(target);
+                }else{
+                    hideMask();
+                    hideModal();
+                }
+            })
+        }
+
+        function confirmDownload(target){
+            var cfDn = document.querySelector('#confirm-download');
+
+            if(cfDn.contains(target) || cfDn == target){
+                var $fileName = document.querySelector('#file-name');
+                var $type = document.querySelector('#image-type');
+                var fileName = $fileName.value;
+                var type ;
+                
+                $type.querySelectorAll('option').forEach(function(opt){
+                    if(opt.selected){
+                        type = opt;
+                    }
+                })
+
+                debugger
+                if(fileName && type){
+
+                    hideMask();
+                    hideModal();
+
+                    downLoadToPNG(fileName,'.'+type.text)
+                }else{
+                    alert('必须输入文件名称')
+                }
+            }
+        }
+
+        function drawCanvas() {
+            var canvas = document.querySelector('canvas')
+            var ctx = canvas.getContext('2d');
+
+            ctx.fillStyle="#534";
+            ctx.fillRect(10,10,200,200);
+
+            ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+            ctx.strokeRect(50, 50, 200, 200);
+
+            ctx.save();
+
+            // ctx.font = "24px 微软雅黑";
+            // ctx.textAlign = "center";
+            // ctx.fillText("点击生成新图片", 140, 160);
+
+            // ctx.restore();
+        }
+
+        function bindClickEvent() {
+            var saveBtn = document.querySelector('#save'),
+                downloadBtn = document.querySelector('#download');
+
+            saveBtn.addEventListener('click', handleSaveCanvas, false)
+            downloadBtn.addEventListener('click', handleDownloadCanvas, false)
+        }
+
+        function handleSaveCanvas() {
+            var canvas = document.querySelector('canvas');
+            var image = canvas.toDataURL('image/png');
+            var w = window.open('about:blank', 'image from canvas');
+
+            w.document.write('<img src="' + image + '" />');
+        }
+
+        function toBlob(canvas) {
+            canvas.toBlob(function (blob) {
+                var img = new Image(),
+                    url = URL.createObjectURL(blob);
+
+                img.onload = function () {
+                    URL.revokeObjectURL(url);
+                }
+
+                img.src = url;
+                document.querySelector('#content').appendChild(img);
+            });
+        }
+
+        function handleDownloadCanvas() {
+            showMask()
+            showModal()
+            bindMaskHideEvent()
+        }
+
+        function downLoadToPNG(filename,ext) {
+            var canvas = document.querySelector('canvas');
+            var image = canvas.toDataURL('image/png').replace("image/png", "image/octet-stream");
+            var link = document.createElement('a');
+
+            ext = ext || '.gif'
+            link.href = image;
+            link.download = filename + ext;
+
+            var event = document.createEvent('MouseEvents');
+            event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+            link.dispatchEvent(event);
+        }
+
+        function copyImageData(canvas){
+
+        }
+    </script>
+</body>
+
+</html>

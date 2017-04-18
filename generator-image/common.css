@@ -1,0 +1,19 @@
+html{
+    font-size:14px;
+    line-height: 1.15;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body{
+    font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue","Droid Sans",Roboto,Arial,"PingFang TC",hei,"Source Han Sans TC","Noto Sans CJK TC","PingFang SC","Source Han Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+    overflow-x: hidden;
+    min-width: 320px;
+    font-size: 1rem;
+    line-height: 1.4285em;
+    color: #5a5a5a;
+    -webkit-font-smoothing: antialiased;
+    font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    -moz-user-select: none;
+}
